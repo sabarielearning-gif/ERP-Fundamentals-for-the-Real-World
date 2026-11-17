@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ERP Fundamentals for the Real World — Audiobook Player</title>
+  <link rel="icon" type="image/jpeg" href="cover.jpg">
+  
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #121a2d;
+      --card-hover: #18233c;
+      --accent-gold: #f59e0b;
+      --accent-cyan: #38bdf8;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #22324f;
+      --active-row: rgba(245, 158, 11, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 80px 16px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 760px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Header & Branding */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .badge {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 700;
+      color: var(--accent-gold);
+      background: rgba(245, 158, 11, 0.15);
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .author-tag {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Hero Player Card */
+    .hero-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .track-info-row {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+    .cover-art {
+      width: 120px;
+      height: 120px;
+      border-radius: 12px;
+      object-fit: cover;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      flex-shrink: 0;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .track-details {
+      flex: 1;
+      min-width: 0;
+    }
+    .now-playing-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      margin-bottom: 4px;
+    }
+    .current-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 4px;
+    }
+    .current-meta {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Progress & Scrubber */
+    .progress-container {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .scrubber {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: #2a3a5a;
+      outline: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .scrubber::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent-gold);
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.8);
+    }
+    .time-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Playback Controls */
+    .controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 4px;
+    }
+    .main-controls {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .btn {
+      background: none;
+      border: none;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.1s, color 0.15s;
+    }
+    .btn:hover {
+      color: var(--accent-gold);
+    }
+    .btn:active {
+      transform: scale(0.92);
+    }
+    .btn-play {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--accent-gold);
+      color: #000;
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+    }
+    .btn-play:hover {
+      background: #fbbf24;
+      color: #000;
+    }
+
+    .btn-speed {
+      font-size: 12px;
+      font-weight: 700;
+      background: #1c2742;
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 8px;
+      color: var(--accent-cyan);
+    }
+
+    /* Companion PDF Banner */
+    .companion-banner {
+      background: linear-gradient(135deg, #152238 0%, #1e293b 100%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .companion-info h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 2px;
+    }
+    .companion-info p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .btn-pdf {
+      background: var(--accent-gold);
+      color: #000;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .btn-pdf:hover {
+      background: #fbbf24;
+    }
+
+    /* Playlist Section */
+    .playlist-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .playlist-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .playlist-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .playlist-count {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .playlist-items {
+      list-style: none;
+      max-height: 520px;
+      overflow-y: auto;
+    }
+    .playlist-items::-webkit-scrollbar {
+      width: 6px;
+    }
+    .playlist-items::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    .track-row {
+      display: flex;
+      align-items: center;
+      padding: 12px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      cursor: pointer;
+      transition: background 0.15s;
+      gap: 14px;
+    }
+    .track-row:hover {
+      background: var(--card-hover);
+    }
+    .track-row.active {
+      background: var(--active-row);
+      border-left: 3px solid var(--accent-gold);
+    }
+    .track-num {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      width: 24px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .track-row.active .track-num {
+      color: var(--accent-gold);
+    }
+    .track-row-title {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .track-row.active .track-row-title {
+      font-weight: 700;
+      color: var(--accent-gold);
+    }
+    .track-row-duration {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
+    }
+
+    /* Drive ID Config Note */
+    .config-note {
+      font-size: 11px;
+      color: #64748b;
+      text-align: center;
+      padding: 8px 0;
+    }
+
+    @media (max-width: 600px) {
+      .track-info-row {
+        gap: 14px;
+      }
+      .cover-art {
+        width: 80px;
+        height: 80px;
+      }
+      .current-title {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="badge">Official Audiobook Edition</div>
+      <div class="author-tag">By Sabarie Ganesh Mohhan</div>
+    </header>
+
+    <!-- Main Player Card -->
+    <div class="hero-card">
+      <div class="track-info-row">
+        <img src="cover.jpg" alt="Audiobook Cover Art" class="cover-art" id="playerCover">
+        <div class="track-details">
+          <div class="now-playing-label" id="trackRole">Now Playing</div>
+          <div class="current-title" id="trackTitle">Chapter 01: ERP: The Shared Brain of a Business</div>
+          <div class="current-meta" id="trackMeta">ERP Fundamentals for the Real World</div>
+        </div>
+      </div>
+
+      <!-- Scrubber -->
+      <div class="progress-container">
+        <input type="range" class="scrubber" id="scrubber" min="0" max="100" value="0" step="0.1">
+        <div class="time-row">
+          <span id="currentTime">00:00</span>
+          <span id="totalDuration">18:03</span>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-row">
+        <button class="btn btn-speed" id="btnSpeed" title="Change Playback Speed">1.0x</button>
+
+        <div class="main-controls">
+          <button class="btn" id="btnPrev" title="Previous Chapter">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+          </button>
+          <button class="btn" id="btnBack15" title="Rewind 15 seconds">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8zm-1.5 6h-1v5h1v-5zm3 0h-1v5h1v-5z"/></svg>
+          </button>
+          <button class="btn btn-play" id="btnPlay" title="Play / Pause">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" id="playIcon"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <button class="btn" id="btnFwd30" title="Forward 30 seconds">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5V1l5 5-5 5V7c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6h2c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8zm.5 6h-1v5h1v-5zm3 0h-1v5h1v-5z"/></svg>
+          </button>
+          <button class="btn" id="btnNext" title="Next Chapter">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+          </button>
+        </div>
+
+        <button class="btn" id="btnMute" title="Mute / Unmute">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" id="volIcon"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Companion PDF Download Banner -->
+    <div class="companion-banner">
+      <div class="companion-info">
+        <h4>Supplemental Companion PDF</h4>
+        <p>23 pages of enterprise flowcharts, BOM hierarchies, and ledger tables.</p>
+      </div>
+      <a href="ERP_Fundamentals_Audiobook_Companion.pdf" download class="btn-pdf">Download PDF</a>
+    </div>
+
+    <!-- Playlist Card -->
+    <div class="playlist-card">
+      <div class="playlist-header">
+        <div class="playlist-title">Audiobook Chapters & Playbook</div>
+        <div class="playlist-count" id="playlistStats">18 Tracks • 5h 34m</div>
+      </div>
+      <ul class="playlist-items" id="playlistItems">
+        <!-- Generated dynamically by JavaScript -->
+      </ul>
+    </div>
+
+    <div class="config-note">
+      Standalone Web Audio Player • ERP Fundamentals for the Real World © 2026 Sabarie Ganesh Mohhan
+    </div>
+  </div>
+
+  <audio id="audioElement" preload="metadata"></audio>
+
+  <script>
+    /**
+     * Complete 18-Track Playlist definition with verified Google Drive Streaming IDs
+     */
+    const TRACKS = [
+      { id: 0, num: "00", title: "Opening Credits, Dedication, and Legal Notice", duration: "01:21", driveId: "1J7YmxEQV1dV9gy2JRkUtQTv2MxoBNi97" },
+      { id: 1, num: "01", title: "ERP: The Shared Brain of a Business", duration: "18:03", driveId: "1MoNVWxkZpvhUS5iQ9wxmM1Nl9C0CGQ3E" },
+      { id: 2, num: "02", title: "Master Data: The Building Blocks", duration: "23:01", driveId: "1o4fmXVP2OgZDCdQ3Wn-kpwy_rxgVEBS3" },
+      { id: 3, num: "03", title: "Sales: From Customer Need to Cash (Order-to-Cash)", duration: "18:36", driveId: "12w2iNv2jNZW04vUeAkcdipL_cGaXzFuG" },
+      { id: 4, num: "04", title: "Purchasing: From Requirement to Supplier Payment (P2P)", duration: "21:12", driveId: "1nhsdUw54LfuzpOQ5NdcD5qmTIUxmNG4E" },
+      { id: 5, num: "05", title: "Manufacturing: From Components to Finished Product", duration: "22:22", driveId: "1ExSi_6H09aGx6dgU2-WkV2JkG9Dn0ADe" },
+      { id: 6, num: "06", title: "Finance: How Operations Become Financial Entries", duration: "26:40", driveId: "1V0jjuKmVInVnE2VRG8-u7L6mxo_M5u6a" },
+      { id: 7, num: "07", title: "How the Three Core Processes Connect", duration: "19:45", driveId: "1b_t2JmLBmkkrJKyt3UQS7L8GuEnETvG8" },
+      { id: 8, num: "08", title: "MRP: Planning What to Make and Buy", duration: "22:03", driveId: "1st0vuQjdnT6iUzSD48jeriFpKFZzpLNh" },
+      { id: 9, num: "09", title: "A Day in the Life of an ERP Transaction", duration: "27:03", driveId: "17pnheXUY3vUoWPRQRbSYV__4N-X9SYg2" },
+      { id: 10, num: "10", title: "Cloud ERP, Modern Trends, and Industry Directions", duration: "16:47", driveId: "1QXnfTzpC9o8XiB7ChfMqG8bi1nhrnYbU" },
+      { id: 11, num: "11", title: "The Reality of ERP Implementation Projects", duration: "20:07", driveId: "10S9KgtAwNb-3HP6mqU70FA5uwlU94JXf" },
+      { id: 12, num: "12", title: "Your ERP Starter Toolkit", duration: "19:20", driveId: "14_TFTIpTOaDaG_3EaSWSzjE-x1Z94m3i" },
+      { id: 13, num: "13", title: "ERP Across Industries: Beyond Discrete Manufacturing", duration: "23:08", driveId: "1be5OLa-JQTUEfxlVoHFdRql--FN622LB" },
+      { id: 14, num: "14", title: "The Executive Dashboard: Key ERP KPIs and Metrics", duration: "24:21", driveId: "1LgSH9frCvmTuCpYulc57SUpmr3QEqTvJ" },
+      { id: 15, num: "15", title: "Conclusion: The Continuous Journey of Enterprise Excellence", duration: "06:03", driveId: "1toiwfiuKWWZKs_ERQsndn3NOROO37T6V" },
+      { id: 16, num: "16", title: "Bonus Chapter: ERP Career & Job Interview Playbook", duration: "23:10", driveId: "1n8Rrq-2Hp1TuIsE-kB5qCTHtDWAMB9j6" },
+      { id: 17, num: "17", title: "Audible Closing Credits and Author Note", duration: "00:59", driveId: "1xX82DM9xohqtBG2nXhe3htJQlsI35ymn" }
+    ];
+
+    // Helper to format Google Drive Stream URL
+    function getAudioSrc(track) {
+      return `https://docs.google.com/uc?export=open&id=${track.driveId}`;
+    }
+
+    // DOM Elements
+    const audio = document.getElementById("audioElement");
+    const playlistContainer = document.getElementById("playlistItems");
+    const btnPlay = document.getElementById("btnPlay");
+    const playIcon = document.getElementById("playIcon");
+    const btnPrev = document.getElementById("btnPrev");
+    const btnNext = document.getElementById("btnNext");
+    const btnBack15 = document.getElementById("btnBack15");
+    const btnFwd30 = document.getElementById("btnFwd30");
+    const btnSpeed = document.getElementById("btnSpeed");
+    const btnMute = document.getElementById("btnMute");
+    const scrubber = document.getElementById("scrubber");
+    const currentTimeEl = document.getElementById("currentTime");
+    const totalDurationEl = document.getElementById("totalDuration");
+    const trackTitleEl = document.getElementById("trackTitle");
+    const trackRoleEl = document.getElementById("trackRole");
+
+    let currentTrackIndex = 1; // Default to Chapter 1
+    const SPEEDS = [1.0, 1.25, 1.5, 2.0, 0.75];
+    let speedIndex = 0;
+
+    // Render Playlist
+    function renderPlaylist() {
+      playlistContainer.innerHTML = "";
+      TRACKS.forEach((track, index) => {
+        const li = document.createElement("li");
+        li.className = `track-row ${index === currentTrackIndex ? "active" : ""}`;
+        li.innerHTML = `
+          <div class="track-num">${track.num}</div>
+          <div class="track-row-title">${track.title}</div>
+          <div class="track-row-duration">${track.duration}</div>
+        `;
+        li.addEventListener("click", () => {
+          loadTrack(index, true);
+        });
+        playlistContainer.appendChild(li);
+      });
+    }
+
+    // Load Track
+    function loadTrack(index, autoPlay = false) {
+      currentTrackIndex = index;
+      const track = TRACKS[index];
+      audio.src = getAudioSrc(track);
+      trackTitleEl.textContent = `${track.num !== "00" && track.num !== "17" ? "Chapter " + track.num + ": " : ""}${track.title}`;
+      trackRoleEl.textContent = track.id === 0 ? "Opening Track" : track.id === 16 ? "Bonus Chapter" : track.id === 17 ? "Closing Credits" : `Track ${index} of ${TRACKS.length - 1}`;
+      totalDurationEl.textContent = track.duration;
+
+      renderPlaylist();
+
+      // Update MediaSession (iOS / Android lock screen controls)
+      if ("mediaSession" in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: track.title,
+          artist: "Sabarie Ganesh Mohhan",
+          album: "ERP Fundamentals for the Real World",
+          artwork: [{ src: "cover.jpg", sizes: "2400x2400", type: "image/jpeg" }]
+        });
+      }
+
+      if (autoPlay) {
+        audio.play().catch(e => console.log("Auto-play blocked:", e));
+      }
+    }
+
+    // Play / Pause Toggle
+    function togglePlay() {
+      if (audio.paused) {
+        if (!audio.src) {
+          loadTrack(currentTrackIndex, true);
+        } else {
+          audio.play();
+        }
+      } else {
+        audio.pause();
+      }
+    }
+
+    function updatePlayIcon() {
+      if (audio.paused) {
+        playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+      } else {
+        playIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+      }
+    }
+
+    // Time Formatting (seconds -> mm:ss)
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${mins < 10 ? "0" : ""}${mins}:${secs < 10 ? "0" : ""}${secs}`;
+    }
+
+    // Audio Event Listeners
+    audio.addEventListener("play", updatePlayIcon);
+    audio.addEventListener("pause", updatePlayIcon);
+
+    audio.addEventListener("timeupdate", () => {
+      if (!isNaN(audio.duration) && audio.duration > 0) {
+        const pct = (audio.currentTime / audio.duration) * 100;
+        scrubber.value = pct;
+        currentTimeEl.textContent = formatTime(audio.currentTime);
+      }
+    });
+
+    audio.addEventListener("loadedmetadata", () => {
+      totalDurationEl.textContent = formatTime(audio.duration);
+    });
+
+    // Auto-advance to next track when finished
+    audio.addEventListener("ended", () => {
+      if (currentTrackIndex < TRACKS.length - 1) {
+        loadTrack(currentTrackIndex + 1, true);
+      }
+    });
+
+    // Scrubber Control
+    scrubber.addEventListener("input", () => {
+      if (!isNaN(audio.duration)) {
+        audio.currentTime = (scrubber.value / 100) * audio.duration;
+      }
+    });
+
+    // Prev / Next / Seek
+    btnPrev.addEventListener("click", () => {
+      if (audio.currentTime > 3) {
+        audio.currentTime = 0;
+      } else if (currentTrackIndex > 0) {
+        loadTrack(currentTrackIndex - 1, true);
+      }
+    });
+
+    btnNext.addEventListener("click", () => {
+      if (currentTrackIndex < TRACKS.length - 1) {
+        loadTrack(currentTrackIndex + 1, true);
+      }
+    });
+
+    btnBack15.addEventListener("click", () => {
+      audio.currentTime = Math.max(0, audio.currentTime - 15);
+    });
+
+    btnFwd30.addEventListener("click", () => {
+      audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 30);
+    });
+
+    btnPlay.addEventListener("click", togglePlay);
+
+    // Speed Control
+    btnSpeed.addEventListener("click", () => {
+      speedIndex = (speedIndex + 1) % SPEEDS.length;
+      const spd = SPEEDS[speedIndex];
+      audio.playbackRate = spd;
+      btnSpeed.textContent = `${spd.toFixed(spd % 1 === 0 ? 1 : 2)}x`;
+    });
+
+    // Mute Toggle
+    btnMute.addEventListener("click", () => {
+      audio.muted = !audio.muted;
+      document.getElementById("volIcon").innerHTML = audio.muted
+        ? '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>'
+        : '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>';
+    });
+
+    // Keyboard Shortcuts
+    document.addEventListener("keydown", (e) => {
+      if (e.target.tagName === "INPUT") return;
+      if (e.code === "Space") {
+        e.preventDefault();
+        togglePlay();
+      } else if (e.code === "ArrowLeft") {
+        audio.currentTime = Math.max(0, audio.currentTime - 10);
+      } else if (e.code === "ArrowRight") {
+        audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 10);
+      }
+    });
+
+    // Initialize
+    renderPlaylist();
+    loadTrack(1, false); // Default to Chapter 1
+  </script>
+</body>
+</html>
