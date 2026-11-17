@@ -36,6 +36,7 @@
       flex-direction: column;
       align-items: center;
       padding: 24px 16px 80px 16px;
+      position: relative;
     }
 
     .container {
@@ -44,6 +45,139 @@
       display: flex;
       flex-direction: column;
       gap: 20px;
+      transition: filter 0.3s ease;
+    }
+
+    /* Locked State Blur */
+    body.is-locked .container {
+      filter: blur(8px) brightness(0.6);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Passcode Lock Modal */
+    .lock-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(9, 13, 22, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .lock-overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .lock-card {
+      background: #141f36;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 20px;
+      padding: 36px 28px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 30px rgba(245, 158, 11, 0.15);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .lock-icon-wrap {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-gold);
+      margin-bottom: 4px;
+    }
+
+    .lock-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .lock-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .passcode-form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .passcode-input {
+      width: 100%;
+      background: #090e1a;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 16px;
+      color: var(--text-main);
+      text-align: center;
+      letter-spacing: 2px;
+      font-weight: 600;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .passcode-input:focus {
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
+    }
+    .passcode-input.error {
+      border-color: #ef4444;
+      animation: shake 0.3s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+
+    .btn-unlock {
+      width: 100%;
+      background: var(--accent-gold);
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-unlock:hover {
+      background: #fbbf24;
+    }
+    .btn-unlock:active {
+      transform: scale(0.98);
+    }
+
+    .error-msg {
+      font-size: 12px;
+      color: #ef4444;
+      min-height: 16px;
     }
 
     /* Header & Branding */
@@ -326,12 +460,24 @@
       flex-shrink: 0;
     }
 
-    /* Drive ID Config Note */
-    .config-note {
+    .footer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       font-size: 11px;
       color: #64748b;
-      text-align: center;
-      padding: 8px 0;
+      padding: 8px 4px;
+    }
+    .btn-relock {
+      background: none;
+      border: none;
+      color: #64748b;
+      cursor: pointer;
+      text-decoration: underline;
+      font-size: 11px;
+    }
+    .btn-relock:hover {
+      color: var(--accent-gold);
     }
 
     @media (max-width: 600px) {
@@ -348,7 +494,38 @@
     }
   </style>
 </head>
-<body>
+<body class="is-locked">
+
+  <!-- Passcode Lock Overlay -->
+  <div class="lock-overlay" id="lockOverlay">
+    <div class="lock-card">
+      <div class="lock-icon-wrap">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+        </svg>
+      </div>
+      <div class="lock-title">Private Audio Preview</div>
+      <div class="lock-desc">
+        <em>ERP Fundamentals for the Real World</em><br>
+        Enter your reader access code to unlock playback.
+      </div>
+
+      <form class="passcode-form" id="passcodeForm" onsubmit="event.preventDefault(); handleUnlock();">
+        <input 
+          type="text" 
+          id="passcodeInput" 
+          class="passcode-input" 
+          placeholder="Enter Passcode" 
+          autocomplete="off" 
+          autocorrect="off" 
+          autocapitalize="characters" 
+          spellcheck="false"
+        />
+        <div class="error-msg" id="errorMsg"></div>
+        <button type="submit" class="btn-unlock">Unlock Audiobook</button>
+      </form>
+    </div>
+  </div>
 
   <div class="container">
     <!-- Header -->
@@ -425,8 +602,9 @@
       </ul>
     </div>
 
-    <div class="config-note">
-      Standalone Web Audio Player • ERP Fundamentals for the Real World © 2026 Sabarie Ganesh Mohhan
+    <div class="footer-row">
+      <span>ERP Fundamentals for the Real World © 2026 Sabarie Ganesh Mohhan</span>
+      <button class="btn-relock" onclick="lockPlayer()">Lock Session</button>
     </div>
   </div>
 
@@ -434,32 +612,113 @@
 
   <script>
     /**
-     * Complete 18-Track Playlist definition with verified Google Drive Streaming IDs
+     * PASSCODE CONFIGURATION
+     * Change this secret code to whatever you want your friends to enter.
+     * Capitalization is automatically standardized to uppercase.
+     */
+    const AUTHOR_PASSCODE = "CAMPUS2026"; 
+    const STORAGE_KEY = "erp_audio_unlocked_v1";
+
+    const lockOverlay = document.getElementById("lockOverlay");
+    const passcodeInput = document.getElementById("passcodeInput");
+    const errorMsg = document.getElementById("errorMsg");
+
+    // Check if passcode is provided in URL (?code=... or ?pass=...)
+    function checkUrlPasscode() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlCode = urlParams.get("code") || urlParams.get("pass") || urlParams.get("passcode");
+      if (urlCode && urlCode.trim().toUpperCase() === AUTHOR_PASSCODE.toUpperCase()) {
+        unlockPlayer(true);
+        // Clean URL parameter without reloading
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return true;
+      }
+      return false;
+    }
+
+    // Check saved unlock state
+    function initSecurity() {
+      if (checkUrlPasscode()) return;
+
+      const isUnlocked = localStorage.getItem(STORAGE_KEY);
+      if (isUnlocked === "true") {
+        unlockPlayer(false);
+      } else {
+        document.body.classList.add("is-locked");
+        lockOverlay.classList.remove("hidden");
+        setTimeout(() => passcodeInput.focus(), 200);
+      }
+    }
+
+    function handleUnlock() {
+      const val = passcodeInput.value.trim().toUpperCase();
+      if (val === AUTHOR_PASSCODE.toUpperCase()) {
+        errorMsg.textContent = "";
+        passcodeInput.classList.remove("error");
+        unlockPlayer(true);
+      } else {
+        errorMsg.textContent = "Incorrect passcode. Please check with author.";
+        passcodeInput.classList.add("error");
+        passcodeInput.focus();
+      }
+    }
+
+    function unlockPlayer(saveStorage = true) {
+      document.body.classList.remove("is-locked");
+      lockOverlay.classList.add("hidden");
+      if (saveStorage) {
+        localStorage.setItem(STORAGE_KEY, "true");
+      }
+    }
+
+    function lockPlayer() {
+      localStorage.removeItem(STORAGE_KEY);
+      audio.pause();
+      document.body.classList.add("is-locked");
+      lockOverlay.classList.remove("hidden");
+      passcodeInput.value = "";
+      errorMsg.textContent = "";
+      passcodeInput.focus();
+    }
+
+    /**
+     * Complete 18-Track Playlist definition
      */
     const TRACKS = [
-      { id: 0, num: "00", title: "Opening Credits, Dedication, and Legal Notice", duration: "01:21", driveId: "1J7YmxEQV1dV9gy2JRkUtQTv2MxoBNi97" },
-      { id: 1, num: "01", title: "ERP: The Shared Brain of a Business", duration: "18:03", driveId: "1MoNVWxkZpvhUS5iQ9wxmM1Nl9C0CGQ3E" },
-      { id: 2, num: "02", title: "Master Data: The Building Blocks", duration: "23:01", driveId: "1o4fmXVP2OgZDCdQ3Wn-kpwy_rxgVEBS3" },
-      { id: 3, num: "03", title: "Sales: From Customer Need to Cash (Order-to-Cash)", duration: "18:36", driveId: "12w2iNv2jNZW04vUeAkcdipL_cGaXzFuG" },
-      { id: 4, num: "04", title: "Purchasing: From Requirement to Supplier Payment (P2P)", duration: "21:12", driveId: "1nhsdUw54LfuzpOQ5NdcD5qmTIUxmNG4E" },
-      { id: 5, num: "05", title: "Manufacturing: From Components to Finished Product", duration: "22:22", driveId: "1ExSi_6H09aGx6dgU2-WkV2JkG9Dn0ADe" },
-      { id: 6, num: "06", title: "Finance: How Operations Become Financial Entries", duration: "26:40", driveId: "1V0jjuKmVInVnE2VRG8-u7L6mxo_M5u6a" },
-      { id: 7, num: "07", title: "How the Three Core Processes Connect", duration: "19:45", driveId: "1b_t2JmLBmkkrJKyt3UQS7L8GuEnETvG8" },
-      { id: 8, num: "08", title: "MRP: Planning What to Make and Buy", duration: "22:03", driveId: "1st0vuQjdnT6iUzSD48jeriFpKFZzpLNh" },
-      { id: 9, num: "09", title: "A Day in the Life of an ERP Transaction", duration: "27:03", driveId: "17pnheXUY3vUoWPRQRbSYV__4N-X9SYg2" },
-      { id: 10, num: "10", title: "Cloud ERP, Modern Trends, and Industry Directions", duration: "16:47", driveId: "1QXnfTzpC9o8XiB7ChfMqG8bi1nhrnYbU" },
-      { id: 11, num: "11", title: "The Reality of ERP Implementation Projects", duration: "20:07", driveId: "10S9KgtAwNb-3HP6mqU70FA5uwlU94JXf" },
-      { id: 12, num: "12", title: "Your ERP Starter Toolkit", duration: "19:20", driveId: "14_TFTIpTOaDaG_3EaSWSzjE-x1Z94m3i" },
-      { id: 13, num: "13", title: "ERP Across Industries: Beyond Discrete Manufacturing", duration: "23:08", driveId: "1be5OLa-JQTUEfxlVoHFdRql--FN622LB" },
-      { id: 14, num: "14", title: "The Executive Dashboard: Key ERP KPIs and Metrics", duration: "24:21", driveId: "1LgSH9frCvmTuCpYulc57SUpmr3QEqTvJ" },
-      { id: 15, num: "15", title: "Conclusion: The Continuous Journey of Enterprise Excellence", duration: "06:03", driveId: "1toiwfiuKWWZKs_ERQsndn3NOROO37T6V" },
-      { id: 16, num: "16", title: "Bonus Chapter: ERP Career & Job Interview Playbook", duration: "23:10", driveId: "1n8Rrq-2Hp1TuIsE-kB5qCTHtDWAMB9j6" },
-      { id: 17, num: "17", title: "Audible Closing Credits and Author Note", duration: "00:59", driveId: "1xX82DM9xohqtBG2nXhe3htJQlsI35ymn" }
+      { id: 0, num: "00", title: "Opening Credits, Dedication, and Legal Notice", duration: "01:21", driveId: "1J7YmxEQV1dV9gy2JRkUtQTv2MxoBNi97", localFile: "chapters/00_opening_credits_and_dedication.mp3" },
+      { id: 1, num: "01", title: "ERP: The Shared Brain of a Business", duration: "18:03", driveId: "1MoNVWxkZpvhUS5iQ9wxmM1Nl9C0CGQ3E", localFile: "chapters/ch01_erp_the_shared_brain_of_a_business.mp3" },
+      { id: 2, num: "02", title: "Master Data: The Building Blocks", duration: "23:01", driveId: "1o4fmXVP2OgZDCdQ3Wn-kpwy_rxgVEBS3", localFile: "chapters/ch02_master_data_the_building_blocks.mp3" },
+      { id: 3, num: "03", title: "Sales: From Customer Need to Cash (Order-to-Cash)", duration: "18:36", driveId: "12w2iNv2jNZW04vUeAkcdipL_cGaXzFuG", localFile: "chapters/ch03_sales_from_customer_need_to_cash_order_to_cash.mp3" },
+      { id: 4, num: "04", title: "Purchasing: From Requirement to Supplier Payment (P2P)", duration: "21:12", driveId: "1nhsdUw54LfuzpOQ5NdcD5qmTIUxmNG4E", localFile: "chapters/ch04_purchasing_from_requirement_to_supplier_payment_procure_to_pay.mp3" },
+      { id: 5, num: "05", title: "Manufacturing: From Components to Finished Product", duration: "22:22", driveId: "1ExSi_6H09aGx6dgU2-WkV2JkG9Dn0ADe", localFile: "chapters/ch05_manufacturing_from_components_to_finished_product.mp3" },
+      { id: 6, num: "06", title: "Finance: How Operations Become Financial Entries", duration: "26:40", driveId: "1V0jjuKmVInVnE2VRG8-u7L6mxo_M5u6a", localFile: "chapters/ch06_finance_how_operations_become_financial_entries.mp3" },
+      { id: 7, num: "07", title: "How the Three Core Processes Connect", duration: "19:45", driveId: "1b_t2JmLBmkkrJKyt3UQS7L8GuEnETvG8", localFile: "chapters/ch07_how_the_three_core_processes_connect.mp3" },
+      { id: 8, num: "08", title: "MRP: Planning What to Make and Buy", duration: "22:03", driveId: "1st0vuQjdnT6iUzSD48jeriFpKFZzpLNh", localFile: "chapters/ch08_mrp_planning_what_to_make_and_buy.mp3" },
+      { id: 9, num: "09", title: "A Day in the Life of an ERP Transaction", duration: "27:03", driveId: "17pnheXUY3vUoWPRQRbSYV__4N-X9SYg2", localFile: "chapters/ch09_a_day_in_the_life_of_an_erp_transaction.mp3" },
+      { id: 10, num: "10", title: "Cloud ERP, Modern Trends, and Industry Directions", duration: "16:47", driveId: "1QXnfTzpC9o8XiB7ChfMqG8bi1nhrnYbU", localFile: "chapters/ch10_cloud_erp_modern_trends_and_where_the_industry_is_heading.mp3" },
+      { id: 11, num: "11", title: "The Reality of ERP Implementation Projects", duration: "20:07", driveId: "10S9KgtAwNb-3HP6mqU70FA5uwlU94JXf", localFile: "chapters/ch11_the_reality_of_erp_implementation_projects.mp3" },
+      { id: 12, num: "12", title: "Your ERP Starter Toolkit", duration: "19:20", driveId: "14_TFTIpTOaDaG_3EaSWSzjE-x1Z94m3i", localFile: "chapters/ch12_your_erp_starter_toolkit.mp3" },
+      { id: 13, num: "13", title: "ERP Across Industries: Beyond Discrete Manufacturing", duration: "23:08", driveId: "1be5OLa-JQTUEfxlVoHFdRql--FN622LB", localFile: "chapters/ch13_erp_across_industries_beyond_discrete_manufacturing.mp3" },
+      { id: 14, num: "14", title: "The Executive Dashboard: Key ERP KPIs and Metrics", duration: "24:21", driveId: "1LgSH9frCvmTuCpYulc57SUpmr3QEqTvJ", localFile: "chapters/ch14_the_executive_dashboard_key_erp_operational_kpis_and_metrics.mp3" },
+      { id: 15, num: "15", title: "Conclusion: The Continuous Journey of Enterprise Excellence", duration: "06:03", driveId: "1toiwfiuKWWZKs_ERQsndn3NOROO37T6V", localFile: "chapters/ch15_conclusion_the_continuous_journey_of_enterprise_excellence.mp3" },
+      { id: 16, num: "16", title: "Bonus Chapter: ERP Career & Job Interview Playbook", duration: "23:10", driveId: "1n8Rrq-2Hp1TuIsE-kB5qCTHtDWAMB9j6", localFile: "chapters/16_bonus_career_and_interview_playbook.mp3" },
+      { id: 17, num: "17", title: "Audible Closing Credits and Author Note", duration: "00:59", driveId: "1xX82DM9xohqtBG2nXhe3htJQlsI35ymn", localFile: "chapters/17_closing_credits.mp3" }
     ];
 
-    // Helper to format Google Drive Stream URL
-    function getAudioSrc(track) {
-      return `https://docs.google.com/uc?export=open&id=${track.driveId}`;
+    // Intelligent source resolution
+    function getAudioSrc(track, preferLocal = false) {
+      const isLocalHost = window.location.hostname === "localhost" || 
+                          window.location.hostname === "127.0.0.1" || 
+                          window.location.protocol === "file:";
+
+      if ((isLocalHost || preferLocal) && track.localFile) {
+        return track.localFile;
+      }
+      
+      if (track.driveId && track.driveId.trim() !== "") {
+        return `https://docs.google.com/uc?export=open&id=${track.driveId.trim()}`;
+      }
+      return track.localFile;
     }
 
     // DOM Elements
@@ -512,7 +771,7 @@
 
       renderPlaylist();
 
-      // Update MediaSession (iOS / Android lock screen controls)
+      // Update MediaSession
       if ("mediaSession" in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
           title: track.title,
@@ -523,9 +782,24 @@
       }
 
       if (autoPlay) {
-        audio.play().catch(e => console.log("Auto-play blocked:", e));
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.log("Playback start note:", error);
+          });
+        }
       }
     }
+
+    // Fallback handler if remote audio fails or is blocked by CORS/CORP
+    audio.addEventListener("error", (e) => {
+      const track = TRACKS[currentTrackIndex];
+      console.warn("Audio stream blocked or failed, attempting local fallback:", audio.src);
+      if (track.localFile && !audio.src.endsWith(track.localFile)) {
+        audio.src = track.localFile;
+        audio.play().catch(err => console.log("Fallback play note:", err));
+      }
+    });
 
     // Play / Pause Toggle
     function togglePlay() {
@@ -533,7 +807,14 @@
         if (!audio.src) {
           loadTrack(currentTrackIndex, true);
         } else {
-          audio.play();
+          audio.play().catch(err => {
+            console.warn("Play error, switching to direct local audio:", err);
+            const track = TRACKS[currentTrackIndex];
+            if (track.localFile) {
+              audio.src = track.localFile;
+              audio.play();
+            }
+          });
         }
       } else {
         audio.pause();
@@ -639,9 +920,10 @@
       }
     });
 
-    // Initialize
+    // Initialize Security & Track 1
+    initSecurity();
     renderPlaylist();
-    loadTrack(1, false); // Default to Chapter 1
+    loadTrack(1, false);
   </script>
 </body>
 </html>
