@@ -330,14 +330,203 @@
       color: #000;
     }
 
-    .btn-speed {
-      font-size: 12px;
-      font-weight: 700;
-      background: #1c2742;
+    /* Speed Control Cluster (Slower / Speed / Faster) */
+    .speed-cluster {
+      display: flex;
+      align-items: center;
+      background: #151f33;
       border: 1px solid var(--border);
-      padding: 6px 10px;
       border-radius: 8px;
+      overflow: hidden;
+    }
+    .speed-step-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 15px;
+      font-weight: 700;
+      width: 24px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .speed-step-btn:hover {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent-gold);
+    }
+    .btn-speed-val {
+      background: transparent;
+      border: none;
+      font-size: 11px;
+      font-weight: 700;
       color: var(--accent-cyan);
+      padding: 0 6px;
+      min-width: 36px;
+      text-align: center;
+      cursor: pointer;
+      line-height: 30px;
+      border-left: 1px solid rgba(34, 50, 79, 0.6);
+      border-right: 1px solid rgba(34, 50, 79, 0.6);
+      transition: color 0.15s;
+    }
+    .btn-speed-val:hover {
+      color: var(--accent-gold);
+    }
+
+    /* Right Controls: CC + Mute */
+    .right-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* CC Toggle Button */
+    .btn-cc {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 8px;
+      background: #151f33;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .cc-badge {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+    .btn-cc:hover {
+      border-color: var(--accent-gold);
+    }
+    .btn-cc.active {
+      background: rgba(245, 158, 11, 0.18);
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+    }
+    .btn-cc.active .cc-badge {
+      color: var(--accent-gold);
+    }
+
+    /* Closed Captions Card Drawer */
+    .cc-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      animation: fadeIn 0.2s ease-out;
+    }
+    .cc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      gap: 10px;
+    }
+    .cc-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .cc-tag {
+      font-size: 10px;
+      font-weight: 800;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+    .cc-track-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 320px;
+    }
+    .cc-tools {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .cc-tool-btn {
+      background: #18233c;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .cc-tool-btn:hover {
+      color: var(--text-main);
+      border-color: var(--accent-gold);
+    }
+    .cc-tool-close {
+      color: #ef4444;
+      font-size: 12px;
+    }
+    .cc-search-container {
+      display: flex;
+      align-items: center;
+      background: #090e1a;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 12px;
+      gap: 8px;
+      color: var(--text-muted);
+    }
+    .cc-search-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-main);
+      font-size: 13px;
+      width: 100%;
+    }
+    .cc-search-input::placeholder {
+      color: var(--text-muted);
+    }
+    .cc-body {
+      max-height: 320px;
+      overflow-y: auto;
+      padding-right: 6px;
+      font-size: 15px;
+      line-height: 1.7;
+      color: #cbd5e1;
+    }
+    .cc-body h3, .cc-body h4, .cc-body h5 {
+      color: var(--accent-gold);
+      margin: 14px 0 6px 0;
+      font-weight: 700;
+    }
+    .cc-body h3 { font-size: 16px; border-bottom: 1px solid rgba(245, 158, 11, 0.2); padding-bottom: 4px; }
+    .cc-body h4 { font-size: 14px; }
+    .cc-body p { margin-bottom: 12px; }
+    .cc-body hr { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+    .cc-body mark { background: rgba(245, 158, 11, 0.4); color: #fff; border-radius: 2px; padding: 0 2px; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     /* Companion PDF Banner */
@@ -556,7 +745,12 @@
 
       <!-- Controls -->
       <div class="controls-row">
-        <button class="btn btn-speed" id="btnSpeed" title="Change Playback Speed">1.0x</button>
+        <!-- Slower / Speed / Faster Cluster -->
+        <div class="speed-cluster">
+          <button class="speed-step-btn" id="btnSpeedDown" title="Slower (−)">−</button>
+          <button class="btn-speed-val" id="btnSpeed" title="Reset to 1.0x">1.0x</button>
+          <button class="speed-step-btn" id="btnSpeedUp" title="Faster (+)">+</button>
+        </div>
 
         <div class="main-controls">
           <button class="btn" id="btnPrev" title="Previous Chapter">
@@ -576,9 +770,36 @@
           </button>
         </div>
 
-        <button class="btn" id="btnMute" title="Mute / Unmute">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" id="volIcon"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
-        </button>
+        <div class="right-controls">
+          <button class="btn btn-cc" id="btnCC" title="Toggle Closed Captions (Transcript)">
+            <span class="cc-badge">CC</span>
+          </button>
+          <button class="btn" id="btnMute" title="Mute / Unmute">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" id="volIcon"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Closed Captions / Interactive Transcript Drawer -->
+    <div class="cc-card" id="ccCard" style="display: none;">
+      <div class="cc-header">
+        <div class="cc-title-group">
+          <span class="cc-tag">CLOSED CAPTIONS</span>
+          <span id="ccTrackTitle" class="cc-track-title">Chapter Transcript</span>
+        </div>
+        <div class="cc-tools">
+          <button class="cc-tool-btn" id="btnCCTextMinus" title="Smaller font">A−</button>
+          <button class="cc-tool-btn" id="btnCCTextPlus" title="Larger font">A+</button>
+          <button class="cc-tool-btn cc-tool-close" id="btnCCClose" title="Close Closed Captions">✕</button>
+        </div>
+      </div>
+      <div class="cc-search-container">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="ccSearchInput" placeholder="Search in this chapter transcript..." class="cc-search-input">
+      </div>
+      <div class="cc-body" id="ccBody">
+        <!-- Active chapter text rendered dynamically -->
       </div>
     </div>
 
@@ -610,6 +831,7 @@
 
   <audio id="audioElement" preload="metadata"></audio>
 
+  <script src="transcripts.js"></script>
   <script>
     /**
      * PASSCODE CONFIGURATION
@@ -733,6 +955,16 @@
     const btnBack15 = document.getElementById("btnBack15");
     const btnFwd30 = document.getElementById("btnFwd30");
     const btnSpeed = document.getElementById("btnSpeed");
+    const btnSpeedDown = document.getElementById("btnSpeedDown");
+    const btnSpeedUp = document.getElementById("btnSpeedUp");
+    const btnCC = document.getElementById("btnCC");
+    const ccCard = document.getElementById("ccCard");
+    const ccTrackTitle = document.getElementById("ccTrackTitle");
+    const ccBody = document.getElementById("ccBody");
+    const ccSearchInput = document.getElementById("ccSearchInput");
+    const btnCCClose = document.getElementById("btnCCClose");
+    const btnCCTextMinus = document.getElementById("btnCCTextMinus");
+    const btnCCTextPlus = document.getElementById("btnCCTextPlus");
     const btnMute = document.getElementById("btnMute");
     const scrubber = document.getElementById("scrubber");
     const currentTimeEl = document.getElementById("currentTime");
@@ -741,8 +973,10 @@
     const trackRoleEl = document.getElementById("trackRole");
 
     let currentTrackIndex = 0; // Default to Chapter 00 (Opening Credits)
-    const SPEEDS = [1.0, 1.25, 1.5, 2.0, 0.75];
-    let speedIndex = 0;
+    const SPEEDS = [0.75, 0.85, 1.0, 1.15, 1.25, 1.5, 1.75, 2.0];
+    let speedIndex = 2; // Default to 1.0x (index 2)
+    let isCCOpen = false;
+    let ccFontSize = 15;
 
     // Render Playlist
     function renderPlaylist() {
@@ -772,6 +1006,7 @@
       totalDurationEl.textContent = track.duration;
 
       renderPlaylist();
+      updateCCContent();
 
       // Update MediaSession
       if ("mediaSession" in navigator) {
@@ -904,13 +1139,131 @@
 
     btnPlay.addEventListener("click", togglePlay);
 
-    // Speed Control
-    btnSpeed.addEventListener("click", () => {
-      speedIndex = (speedIndex + 1) % SPEEDS.length;
+    // Speed Controls: Slower (-), Reset, Faster (+)
+    function setSpeed(index) {
+      speedIndex = Math.max(0, Math.min(SPEEDS.length - 1, index));
       const spd = SPEEDS[speedIndex];
       audio.playbackRate = spd;
       btnSpeed.textContent = `${spd.toFixed(spd % 1 === 0 ? 1 : 2)}x`;
+    }
+
+    btnSpeedDown.addEventListener("click", () => {
+      setSpeed(speedIndex - 1);
     });
+
+    btnSpeedUp.addEventListener("click", () => {
+      setSpeed(speedIndex + 1);
+    });
+
+    btnSpeed.addEventListener("click", () => {
+      const defaultIndex = SPEEDS.indexOf(1.0);
+      if (speedIndex !== defaultIndex) {
+        setSpeed(defaultIndex);
+      } else {
+        setSpeed((speedIndex + 1) % SPEEDS.length);
+      }
+    });
+
+    // Closed Captions (CC) & Interactive Transcript Drawer
+    function setCC(open) {
+      isCCOpen = open;
+      ccCard.style.display = isCCOpen ? "flex" : "none";
+      if (isCCOpen) {
+        btnCC.classList.add("active");
+        updateCCContent();
+        if (window.innerWidth < 640) {
+          ccCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+      } else {
+        btnCC.classList.remove("active");
+      }
+      try {
+        localStorage.setItem("erp_audio_cc", isCCOpen ? "1" : "0");
+      } catch (e) {}
+    }
+
+    function toggleCC() {
+      setCC(!isCCOpen);
+    }
+
+    function updateCCContent() {
+      const track = TRACKS[currentTrackIndex];
+      ccTrackTitle.textContent = `${track.num !== "00" && track.num !== "17" ? "Chapter " + track.num + ": " : ""}${track.title}`;
+      const transcriptHtml = (typeof CHAPTER_TRANSCRIPTS !== "undefined" && CHAPTER_TRANSCRIPTS[track.id])
+        ? CHAPTER_TRANSCRIPTS[track.id]
+        : "<p>Transcript is currently loading...</p>";
+      
+      renderCCBody(transcriptHtml);
+      ccSearchInput.value = "";
+    }
+
+    function renderCCBody(htmlContent, query = "") {
+      if (!query || query.trim() === "") {
+        ccBody.innerHTML = htmlContent;
+        return;
+      }
+      const safeQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const reg = new RegExp(`(${safeQuery})`, "gi");
+      const temp = document.createElement("div");
+      temp.innerHTML = htmlContent;
+      function highlightText(node) {
+        if (node.nodeType === 3) {
+          if (reg.test(node.nodeValue)) {
+            const span = document.createElement("span");
+            span.innerHTML = node.nodeValue.replace(reg, "<mark>$1</mark>");
+            node.parentNode.replaceChild(span, node);
+          }
+        } else if (node.nodeType === 1 && node.childNodes && !/(script|style)/i.test(node.tagName)) {
+          Array.from(node.childNodes).forEach(highlightText);
+        }
+      }
+      Array.from(temp.childNodes).forEach(highlightText);
+      ccBody.innerHTML = temp.innerHTML;
+    }
+
+    ccSearchInput.addEventListener("input", (e) => {
+      const q = e.target.value.trim();
+      const track = TRACKS[currentTrackIndex];
+      const rawHtml = (typeof CHAPTER_TRANSCRIPTS !== "undefined" && CHAPTER_TRANSCRIPTS[track.id]) || "";
+      renderCCBody(rawHtml, q);
+    });
+
+    btnCCTextMinus.addEventListener("click", () => {
+      ccFontSize = Math.max(12, ccFontSize - 1);
+      ccBody.style.fontSize = `${ccFontSize}px`;
+    });
+
+    btnCCTextPlus.addEventListener("click", () => {
+      ccFontSize = Math.min(22, ccFontSize + 1);
+      ccBody.style.fontSize = `${ccFontSize}px`;
+    });
+
+    btnCC.addEventListener("click", toggleCC);
+    btnCCClose.addEventListener("click", () => setCC(false));
+
+    // Play Telemetry & Listen Counter
+    const recordedTracksThisSession = new Set();
+    audio.addEventListener("play", () => {
+      updatePlayIcon();
+      if (!recordedTracksThisSession.has(currentTrackIndex)) {
+        recordedTracksThisSession.add(currentTrackIndex);
+        recordPlayEvent(currentTrackIndex);
+      }
+    });
+
+    function recordPlayEvent(trackIndex) {
+      try {
+        const localKey = "erp_plays_total";
+        const currentCount = parseInt(localStorage.getItem(localKey) || "0", 10) + 1;
+        localStorage.setItem(localKey, currentCount.toString());
+      } catch (e) {}
+
+      // Free anonymous aggregate counter
+      try {
+        fetch(`https://api.counterapi.dev/v1/erp-fundamentals-audiobook-sabarie/play_ch${trackIndex}/up`).catch(() => {});
+        fetch(`https://api.counterapi.dev/v1/erp-fundamentals-audiobook-sabarie/total_plays/up`).catch(() => {});
+      } catch (e) {}
+    }
 
     // Mute Toggle
     btnMute.addEventListener("click", () => {
@@ -930,8 +1283,17 @@
         audio.currentTime = Math.max(0, audio.currentTime - 10);
       } else if (e.code === "ArrowRight") {
         audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 10);
+      } else if (e.key === "c" || e.key === "C") {
+        toggleCC();
       }
     });
+
+    // Restore saved CC preference
+    try {
+      if (localStorage.getItem("erp_audio_cc") === "1") {
+        setCC(true);
+      }
+    } catch (e) {}
 
     // Initialize Security & Track 0 (Opening Credits)
     initSecurity();
