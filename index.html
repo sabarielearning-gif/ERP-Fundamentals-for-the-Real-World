@@ -524,6 +524,17 @@
     .cc-body p { margin-bottom: 12px; }
     .cc-body hr { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
     .cc-body mark { background: rgba(245, 158, 11, 0.4); color: #fff; border-radius: 2px; padding: 0 2px; }
+    /* Read-along highlight (follows the audio) */
+    .cc-body > .cc-active {
+      background: var(--active-row);
+      border-left: 3px solid var(--accent-gold);
+      padding-left: 10px;
+      margin-left: -13px;
+      border-radius: 4px;
+      color: #fff;
+    }
+    .cc-body > * { transition: background 0.25s ease; }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-6px); }
       to { opacity: 1; transform: translateY(0); }
@@ -670,6 +681,22 @@
     }
 
     @media (max-width: 600px) {
+      header {
+        gap: 8px;
+      }
+      .badge {
+        font-size: 11px;
+        font-weight: 400;
+        text-transform: none;
+        letter-spacing: 0;
+        padding: 3px 8px;
+        white-space: nowrap;
+      }
+      .author-tag {
+        font-size: 11px;
+        text-align: right;
+        white-space: nowrap;
+      }
       .track-info-row {
         gap: 14px;
       }
@@ -771,9 +798,7 @@
         </div>
 
         <div class="right-controls">
-          <button class="btn btn-cc" id="btnCC" title="Toggle Closed Captions (Transcript)">
-            <span class="cc-badge">CC</span>
-          </button>
+          <!-- CC button removed for now; transcript drawer + read-along code kept below for later -->
           <button class="btn" id="btnMute" title="Mute / Unmute">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" id="volIcon"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
           </button>
@@ -1169,13 +1194,13 @@
       isCCOpen = open;
       ccCard.style.display = isCCOpen ? "flex" : "none";
       if (isCCOpen) {
-        btnCC.classList.add("active");
+        if (btnCC) btnCC.classList.add("active");
         updateCCContent();
         if (window.innerWidth < 640) {
           ccCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
         }
       } else {
-        btnCC.classList.remove("active");
+        if (btnCC) btnCC.classList.remove("active");
       }
       try {
         localStorage.setItem("erp_audio_cc", isCCOpen ? "1" : "0");
@@ -1200,6 +1225,8 @@
     function renderCCBody(htmlContent, query = "") {
       if (!query || query.trim() === "") {
         ccBody.innerHTML = htmlContent;
+        buildCCMap();
+        updateCCHighlight(true);
         return;
       }
       const safeQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -1219,7 +1246,46 @@
       }
       Array.from(temp.childNodes).forEach(highlightText);
       ccBody.innerHTML = temp.innerHTML;
+      buildCCMap();
     }
+
+    // Read-along: highlight the paragraph being spoken and keep it in view.
+    // Position is estimated from playback progress weighted by text length
+    // (the transcripts carry no timestamps), so it is approximate, not exact.
+    let ccBlocks = [], ccCum = [], ccTotal = 0, ccLastIdx = -1, ccUserScrollUntil = 0;
+
+    function buildCCMap() {
+      ccBlocks = Array.from(ccBody.children).filter(el => el.tagName !== "HR");
+      let acc = 0;
+      ccCum = ccBlocks.map(el => (acc += Math.max(el.textContent.length, 1)));
+      ccTotal = acc;
+      ccLastIdx = -1;
+    }
+
+    function updateCCHighlight(force = false) {
+      if (!isCCOpen || !ccBlocks.length || ccSearchInput.value.trim() !== "") return;
+      const dur = audio.duration;
+      if (!dur || isNaN(dur)) return;
+      const target = (audio.currentTime / dur) * ccTotal;
+      let idx = ccCum.findIndex(c => c >= target);
+      if (idx < 0) idx = ccBlocks.length - 1;
+      if (idx === ccLastIdx && !force) return;
+      if (ccBlocks[ccLastIdx]) ccBlocks[ccLastIdx].classList.remove("cc-active");
+      const el = ccBlocks[idx];
+      el.classList.add("cc-active");
+      ccLastIdx = idx;
+      if (Date.now() > ccUserScrollUntil && (!audio.paused || force)) {
+        const top = ccBody.scrollTop + (el.getBoundingClientRect().top - ccBody.getBoundingClientRect().top) - 40;
+        ccBody.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+      }
+    }
+
+    // Pause auto-follow for a few seconds when the reader scrolls manually
+    ["wheel", "touchstart"].forEach(evt =>
+      ccBody.addEventListener(evt, () => { ccUserScrollUntil = Date.now() + 6000; }, { passive: true })
+    );
+    audio.addEventListener("timeupdate", () => updateCCHighlight());
+    audio.addEventListener("seeked", () => { ccUserScrollUntil = 0; updateCCHighlight(true); });
 
     ccSearchInput.addEventListener("input", (e) => {
       const q = e.target.value.trim();
@@ -1238,7 +1304,7 @@
       ccBody.style.fontSize = `${ccFontSize}px`;
     });
 
-    btnCC.addEventListener("click", toggleCC);
+    if (btnCC) btnCC.addEventListener("click", toggleCC);
     btnCCClose.addEventListener("click", () => setCC(false));
 
     // Play Telemetry & Listen Counter
@@ -1283,16 +1349,13 @@
         audio.currentTime = Math.max(0, audio.currentTime - 10);
       } else if (e.code === "ArrowRight") {
         audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 10);
-      } else if (e.key === "c" || e.key === "C") {
-        toggleCC();
       }
     });
 
     // Restore saved CC preference
     try {
-      if (localStorage.getItem("erp_audio_cc") === "1") {
-        setCC(true);
-      }
+      // CC temporarily disabled: re-enable by restoring the button and this line
+      // if (localStorage.getItem("erp_audio_cc") === "1") setCC(true);
     } catch (e) {}
 
     // Initialize Security & Track 0 (Opening Credits)
