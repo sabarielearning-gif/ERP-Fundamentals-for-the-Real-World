@@ -740,7 +740,7 @@
     const trackTitleEl = document.getElementById("trackTitle");
     const trackRoleEl = document.getElementById("trackRole");
 
-    let currentTrackIndex = 1; // Default to Chapter 1
+    let currentTrackIndex = 0; // Default to Chapter 00 (Opening Credits)
     const SPEEDS = [1.0, 1.25, 1.5, 2.0, 0.75];
     let speedIndex = 0;
 
@@ -933,10 +933,10 @@
       }
     });
 
-    // Initialize Security & Track 1
+    // Initialize Security & Track 0 (Opening Credits)
     initSecurity();
     renderPlaylist();
-    loadTrack(1, false);
+    loadTrack(0, false);
   </script>
 </body>
 </html>
