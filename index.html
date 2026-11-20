@@ -711,19 +711,16 @@
     ];
 
     // Intelligent source resolution
-    function getAudioSrc(track, preferLocal = false) {
-      const isLocalHost = window.location.hostname === "localhost" || 
-                          window.location.hostname === "127.0.0.1" || 
-                          window.location.protocol === "file:";
-
-      if ((isLocalHost || preferLocal) && track.localFile) {
+    function getAudioSrc(track) {
+      // 1. Direct repo/local chapters path (Works natively on Safari, iOS, Chrome, and Localhost)
+      if (track.localFile) {
         return track.localFile;
       }
-      
+      // 2. Fallback to GitHub Release CDN
       if (track.file) {
         return `${GITHUB_CDN_BASE}/${encodeURIComponent(track.file)}`;
       }
-      return track.localFile;
+      return `chapters/${track.file}`;
     }
 
     // DOM Elements
