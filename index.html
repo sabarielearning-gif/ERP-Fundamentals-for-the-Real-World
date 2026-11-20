@@ -805,7 +805,10 @@
         audio.play().catch(err => console.log("Alt play note:", err));
         return;
       }
-      if (track.localFile && !audio.src.endsWith(track.localFile)) {
+      const isLocalHost = window.location.hostname === "localhost" || 
+                          window.location.hostname === "127.0.0.1" || 
+                          window.location.protocol === "file:";
+      if (isLocalHost && track.localFile && !audio.src.endsWith(track.localFile)) {
         audio.src = track.localFile;
         audio.play().catch(err => console.log("Fallback play note:", err));
       }
@@ -818,11 +821,14 @@
           loadTrack(currentTrackIndex, true);
         } else {
           audio.play().catch(err => {
-            console.warn("Play error, switching to direct local audio:", err);
+            console.warn("Play attempt note:", err);
+            const isLocalHost = window.location.hostname === "localhost" || 
+                                window.location.hostname === "127.0.0.1" || 
+                                window.location.protocol === "file:";
             const track = TRACKS[currentTrackIndex];
-            if (track.localFile) {
+            if (isLocalHost && track.localFile && !audio.src.endsWith(track.localFile)) {
               audio.src = track.localFile;
-              audio.play();
+              audio.play().catch(e => console.log(e));
             }
           });
         }
