@@ -793,21 +793,21 @@
       }
     }
 
-    // Fallback handler if remote audio fails or is blocked by CORS/CORP
+    // Fallback handler if audio fails
     audio.addEventListener("error", (e) => {
       const track = TRACKS[currentTrackIndex];
-      console.warn("Audio stream blocked or failed, attempting fallback:", audio.src);
-      if (track.altFile && !audio.src.includes(track.altFile)) {
-        audio.src = `${GITHUB_CDN_BASE}/${encodeURIComponent(track.altFile)}`;
-        audio.play().catch(err => console.log("Alt play note:", err));
+      console.warn("Audio stream note, attempting resilient fallback:", audio.src);
+      // Fallback 1: if chapters/ path failed, try bare file at root
+      if (audio.src.includes("chapters/") && track.file) {
+        audio.src = encodeURIComponent(track.file);
+        audio.play().catch(err => console.log("Root fallback play:", err));
         return;
       }
-      const isLocalHost = window.location.hostname === "localhost" || 
-                          window.location.hostname === "127.0.0.1" || 
-                          window.location.protocol === "file:";
-      if (isLocalHost && track.localFile && !audio.src.endsWith(track.localFile)) {
-        audio.src = track.localFile;
-        audio.play().catch(err => console.log("Fallback play note:", err));
+      // Fallback 2: try altFile
+      if (track.altFile && !audio.src.includes(track.altFile)) {
+        audio.src = `chapters/${encodeURIComponent(track.altFile)}`;
+        audio.play().catch(err => console.log("Alt play note:", err));
+        return;
       }
     });
 
